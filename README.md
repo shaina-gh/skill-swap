@@ -1,5 +1,9 @@
-## Contributors:  
+## 📌 Built for  
+Odoo Hackathon 2025 | Problem Statement #1  
 
+## Problem Statement:
+
+## Contributors:  
 Joel Prince - joel.prince2022@vitstudent.ac.in  
 Shaina - shaina.2022@vitstudent.ac.in  
 Akshaya - akshayapoorna.r2022@vitstudent.ac.in
@@ -13,8 +17,7 @@ Users can list skills they offer (e.g., Python tutoring) and request skills they
 - Accept/reject swaps + feedback system  
 - Admin moderation tools  
 
-## 🌐 Live Demo  
-Coming soon!  
+## DB Schema
 
-## 📌 Built for  
-Odoo Hackathon 2025 | Problem Statement #1  
+<img width="1477" height="1860" alt="image" src="https://github.com/user-attachments/assets/0231be2d-0702-4f6b-ac16-af2a42a67753" />
+
