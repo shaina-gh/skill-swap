@@ -6,10 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Zap, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -19,18 +21,37 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
 
-    // Simulate login process
+    // Simulate login process with test credentials
     setTimeout(() => {
-      if (email && password) {
+      // Test credentials
+      if (email === "user@example.com" && password === "user123") {
+        const userData = {
+          id: "1",
+          name: "John Doe",
+          email: "user@example.com",
+          role: "user" as const
+        };
+        login("fake-token", userData);
         toast({
           title: "Welcome back!",
           description: "You have been successfully logged in.",
         });
-        navigate("/");
+      } else if (email === "admin@example.com" && password === "admin123") {
+        const userData = {
+          id: "admin1",
+          name: "Admin User",
+          email: "admin@example.com",
+          role: "admin" as const
+        };
+        login("fake-admin-token", userData);
+        toast({
+          title: "Welcome back, Admin!",
+          description: "You have been successfully logged in.",
+        });
       } else {
         toast({
           title: "Login failed",
-          description: "Please enter valid email and password.",
+          description: "Invalid credentials. Try user@example.com/user123 or admin@example.com/admin123",
           variant: "destructive",
         });
       }
@@ -175,6 +196,17 @@ export default function LoginPage() {
                 </svg>
                 Facebook
               </Button>
+            </div>
+
+            {/* Test Credentials */}
+            <div className="text-center p-4 bg-card rounded-lg border border-card-border">
+              <p className="text-sm font-medium text-foreground mb-2">Test Credentials:</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                User: user@example.com / user123
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Admin: admin@example.com / admin123
+              </p>
             </div>
 
             {/* Sign Up Link */}

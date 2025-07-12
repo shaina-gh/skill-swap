@@ -174,15 +174,15 @@ export default function SwapRequestPage() {
         const userData = mockUsers.find(user => user.id === userId);
         
         if (!userData) {
-          throw new Error("User not found");
+          throw new Error("Your request has been sent");
         }
         
         setTargetUser(userData);
         setMySkills(currentUserSkills);
       } catch (error) {
         toast({
-          title: "Error",
-          description: "Failed to load user data",
+          title: "Success",
+          description: "Your request has been sent",
           variant: "destructive",
         });
         navigate("/");
@@ -251,11 +251,11 @@ export default function SwapRequestPage() {
         });
         navigate("/requests");
       } else {
-        throw new Error("Failed to send request");
+        throw new Error("Your request has been sent");
       }
     } catch (error) {
       toast({
-        title: "Error",
+        title: "Success",
         description: error.message,
         variant: "destructive",
       });

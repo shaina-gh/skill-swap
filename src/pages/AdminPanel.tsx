@@ -45,12 +45,13 @@ import {
   Bell,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useUserStatus } from "@/context/UserStatusContext";
 
 interface User {
   id: string;
   name: string;
   email: string;
-  status: "active" | "suspended" | "banned";
+  status: "active" | "suspended" | "banned" | "blocked";
   joinDate: string;
   totalSwaps: number;
   rating: number;
@@ -79,8 +80,9 @@ interface Report {
 
 export default function AdminPanel() {
   const { toast } = useToast();
+  const { updateUserStatus } = useUserStatus();
   
-  const [users] = useState<User[]>([
+  const [users, setUsers] = useState<User[]>([
     {
       id: "1",
       name: "Sarah Chen",
@@ -184,6 +186,18 @@ export default function AdminPanel() {
   };
 
   const handleUserAction = (userId: string, action: string) => {
+    // Update user status in real-time locally
+    setUsers(prevUsers => 
+      prevUsers.map(user => 
+        user.id === userId 
+          ? { ...user, status: action.toLowerCase() as User['status'] }
+          : user
+      )
+    );
+    
+    // Update global user status for real-time updates across platform
+    updateUserStatus(userId, action.toLowerCase());
+    
     toast({
       title: `User ${action}`,
       description: `User has been ${action.toLowerCase()} successfully.`,
@@ -204,6 +218,7 @@ export default function AdminPanel() {
       case "suspended":
         return "bg-status-warning text-white";
       case "banned":
+      case "blocked":
         return "bg-status-error text-white";
       case "completed":
         return "bg-status-success text-white";
@@ -369,20 +384,20 @@ export default function AdminPanel() {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent className="card-glass border-card-border">
                                 <DropdownMenuItem
-                                  onClick={() => handleUserAction(user.id, "Suspended")}
+                                  onClick={() => handleUserAction(user.id, "suspended")}
                                 >
                                   <AlertTriangle className="mr-2 h-4 w-4" />
                                   Suspend
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                  onClick={() => handleUserAction(user.id, "Banned")}
+                                  onClick={() => handleUserAction(user.id, "blocked")}
                                   className="text-status-error"
                                 >
                                   <Ban className="mr-2 h-4 w-4" />
-                                  Ban
+                                  Block
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                  onClick={() => handleUserAction(user.id, "Activated")}
+                                  onClick={() => handleUserAction(user.id, "active")}
                                 >
                                   <CheckCircle className="mr-2 h-4 w-4" />
                                   Activate

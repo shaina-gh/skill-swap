@@ -21,22 +21,20 @@ import {
   BarChart3,
   Shield,
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { isAuthenticated, user, logout } = useAuth();
   const currentPage = parseInt(searchParams.get('page') || '1');  
 
   const isActive = (path: string) => location.pathname === path;
 
   const handleLogout = () => {
-    // Clear any stored user data (localStorage, sessionStorage, etc.)
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    // Redirect to login page
-    navigate('/login');
+    logout();
   };
 
   const handlePageChange = (page: number) => {
@@ -45,12 +43,19 @@ export default function Navigation() {
     navigate({ search: newSearchParams.toString() });
   };
   
-  const navItems = [
-    { href: "/", label: "Home", icon: Home },
-    { href: "/profile", label: "Profile", icon: UserCircle },
-    { href: "/requests", label: "Requests", icon: BarChart3 },
-    { href: "/admin", label: "Admin", icon: Shield },
-  ];
+  // Build navigation items based on authentication and role
+  const navItems = [];
+  navItems.push({ href: "/", label: "Home", icon: Home });
+  
+  if (isAuthenticated) {
+    navItems.push({ href: "/profile", label: "Profile", icon: UserCircle });
+    navItems.push({ href: "/requests", label: "Requests", icon: BarChart3 });
+    
+    // Only show admin link to admin users
+    if (user?.role === 'admin') {
+      navItems.push({ href: "/admin", label: "Admin", icon: Shield });
+    }
+  }
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-card-border bg-card-glass backdrop-blur-sm">
@@ -85,51 +90,57 @@ export default function Navigation() {
             })} 
           </div>
 
-          {/* User Menu */}
+          {/* User Menu or Login Button */}
           <div className="flex items-center space-x-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <Avatar className="h-10 w-10 border-2 border-neon-blue/50">
-                    <AvatarImage src="/api/placeholder/40/40" alt="Profile" />
-                    <AvatarFallback className="bg-gradient-primary text-white">
-                      JD
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 card-glass border-card-border" align="end">
-                <div className="flex items-center justify-start gap-2 p-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="/api/placeholder/32/32" alt="Profile" />
-                    <AvatarFallback className="bg-gradient-primary text-white text-xs">
-                      JD
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">John Doe</p>
-                    <p className="text-xs text-muted-foreground">john@example.com</p>
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10 border-2 border-neon-blue/50">
+                      <AvatarImage src="/api/placeholder/40/40" alt="Profile" />
+                      <AvatarFallback className="bg-gradient-primary text-white">
+                        {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 card-glass border-card-border" align="end">
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src="/api/placeholder/32/32" alt="Profile" />
+                      <AvatarFallback className="bg-gradient-primary text-white text-xs">
+                        {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">{user?.name || 'User'}</p>
+                      <p className="text-xs text-muted-foreground">{user?.email || ''}</p>
+                    </div>
                   </div>
-                </div>
-                <DropdownMenuSeparator className="bg-card-border" />
-                <DropdownMenuItem className="hover:bg-card cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-card cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-card-border" />
-                <DropdownMenuItem 
-                  className="hover:bg-card cursor-pointer text-status-error"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <DropdownMenuSeparator className="bg-card-border" />
+                  <DropdownMenuItem className="hover:bg-card cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="hover:bg-card cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-card-border" />
+                  <DropdownMenuItem 
+                    className="hover:bg-card cursor-pointer text-status-error"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button asChild variant="neon">
+                <Link to="/login">Login</Link>
+              </Button>
+            )}
 
             {/* Mobile menu button */}
             <Button

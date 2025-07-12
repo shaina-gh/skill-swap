@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Clock, Star, MessageSquare } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useUserStatus } from "@/context/UserStatusContext";
 
 interface UserCardProps {
   user: {
@@ -15,13 +17,25 @@ interface UserCardProps {
     availability: string;
     rating: number;
     totalSwaps: number;
+    status?: string;
   };
   onRequestSwap: (userId: string) => void;
 }
 
 export default function UserCard({ user, onRequestSwap }: UserCardProps) {
+  const { requireAuth } = useAuth();
+  const { userStatuses } = useUserStatus();
+  
+  // Get real-time status or fall back to user.status
+  const currentStatus = userStatuses[user.id] || user.status;
+
+  const handleRequestSwap = () => {
+    if (requireAuth()) {
+      onRequestSwap(user.id);
+    }
+  };
   return (
-    <Card className="card-glass hover-scale transition-smooth group border-card-border hover:border-neon-blue/50 overflow-hidden">
+    <Card className="card-glass interactive-card group border-card-border hover:border-neon-blue/50 overflow-hidden">
       <CardContent className="p-6">
         {/* User Header */}
         <div className="flex items-start space-x-4 mb-4">
@@ -33,9 +47,16 @@ export default function UserCard({ user, onRequestSwap }: UserCardProps) {
           </Avatar>
           
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-foreground mb-1 truncate group-hover:text-neon-blue transition-smooth">
-              {user.name}
-            </h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-semibold text-foreground truncate group-hover:text-neon-blue transition-smooth">
+                {user.name}
+              </h3>
+              {currentStatus && (currentStatus === 'blocked' || currentStatus === 'suspended') && (
+                <Badge variant="destructive" className="text-xs">
+                  {currentStatus}
+                </Badge>
+              )}
+            </div>
             
             <div className="flex items-center text-muted-foreground text-sm mb-2">
               <MapPin className="h-4 w-4 mr-1" />
@@ -97,10 +118,11 @@ export default function UserCard({ user, onRequestSwap }: UserCardProps) {
 
         {/* Action Button */}
         <Button
-          onClick={() => onRequestSwap(user.id)}
-          className="w-full"
+          onClick={handleRequestSwap}
+          className="w-full btn-glow"
           variant="neon"
           size="lg"
+          disabled={currentStatus === 'blocked' || currentStatus === 'suspended'}
         >
           Request Swap
         </Button>
