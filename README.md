@@ -19,5 +19,5 @@ Users can list skills they offer (e.g., Python tutoring) and request skills they
 
 ## DB Schema
 
-<img width="1477" height="1860" alt="image" src="https://github.com/user-attachments/assets/0231be2d-0702-4f6b-ac16-af2a42a67753" />
+<img width="1477" height="1860" alt="image" src="[https://github.com/user-attachments/assets/0231be2d-0702-4f6b-ac16-af2a42a67753](https://drive.google.com/file/d/1R4LOt6GxIFZqcOtmuQfAMBYYXO0rx_dP/view?usp=sharing)" />
 
